@@ -6,11 +6,9 @@ class RouterView extends Component {
   render() {
     return (
       <main>
-
         {reouteConfig.map((config, index) => <Route
           path={config.path} component={config.component}
           key={index} exact></Route>)}
-
       </main>
     )
   }
