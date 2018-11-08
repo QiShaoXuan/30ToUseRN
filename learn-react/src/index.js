@@ -2,65 +2,101 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom'
 import './asset/styles/reset.css'
 
-import {Observer} from 'mobx-react';
-import {observable} from "mobx";
+import {Provider, inject, observer} from 'mobx-react';
+import {observable, action} from "mobx";
 
 
 import * as serviceWorker from './serviceWorker'
 
-class Checkbox extends Component {
+class CountStore {
+  // constructor(){
+  //   this.store = store
+  // }
+  @observable cc = {
+    count: 0,
+    aaa: 1
+  }
+
+  @action add() {
+    this.cc.count += 1
+  }
+
+  @action aa() {
+    this.cc.aaa -= 1
+  }
+}
+
+class store {
   constructor() {
-    super()
-    this.state = {
-      data: ['Mike', 'Jhon', 'Simo', 'BBB']
-    }
+    this.countStore = new CountStore();
+  }
+}
+
+@inject('store')
+@observer
+class Home extends Component {
+  constructor(props) {
+    super(props)
+    this.countStore = this.props.store.countStore
   }
 
-  checkboxChange(value) {
-    console.log(value)
-    person.name = value
+  render() {
+    let count = this.countStore.cc.count
+    let aaa = this.countStore.cc.aaa
+    return (
+      <div>
+        <p>{count}</p>
+        <p>{aaa}</p>
+      </div>
+    )
   }
+}
 
-  setCheckbox() {
-    return this.state.data.map((value, index) => {
-      return (
-        <div key={index}>
-          <input type="radio" name="vehicle1" value={value}
-            id={`radio${index}`}
-            onChange={() => this.checkboxChange(value)}/>
-          <label htmlFor={`radio${index}`}
-            style={{marginLeft: '10px'}}>{value}</label>
-        </div>
-      )
-    })
+@inject('store')
+@observer
+class Button extends Component {
+  constructor(props) {
+    super(props)
+    console.log(props)
   }
 
   render() {
     return (
       <div>
-        {this.setCheckbox()}
+        <button onClick={() => this.increment()}
+          style={{marginRight: '15px'}}>click to add
+        </button>
+        <button onClick={() => {
+          this.aaa()
+        }}> click to reduce
+        </button>
       </div>
     )
+  }
+
+  increment() {
+    this.props.store.countStore.add()
+    console.log()
+  }
+
+  aaa() {
+    this.props.store.countStore.aa()
   }
 }
 
 class App extends Component {
   render() {
     return (
-      <div>
-        <Checkbox></Checkbox>
-        <Observer>{() =>
-          <div>
-            <div>{this.props.person.name}</div>
-          </div>}</Observer>
-      </div>
-    )
+      <Provider store={new store()}>
+        <div>
+          <Button></Button>
+          <Home/>
+        </div>
+      </Provider>
+    );
   }
 }
 
-const person = observable({name: "John"})
-
-ReactDOM.render(<App
-  person={person}/>, document.getElementById('root'))
+ReactDOM.render(<App/>, document.getElementById('root'))
 
 serviceWorker.unregister()
