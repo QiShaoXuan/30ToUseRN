@@ -1,96 +1,54 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import './asset/styles/reset.css'
+import {Provider, inject, observer} from 'mobx-react'
 
-import {Provider, inject, observer} from 'mobx-react';
-import {observable, action} from "mobx";
+import store from './store'
 
-
-import * as serviceWorker from './serviceWorker'
-
-class CountStore {
-  // constructor(){
-  //   this.store = store
-  // }
-  @observable cc = {
-    count: 0,
-    aaa: 1
-  }
-
-  @action add() {
-    this.cc.count += 1
-  }
-
-  @action aa() {
-    this.cc.aaa -= 1
-  }
-}
-
-class store {
-  constructor() {
-    this.countStore = new CountStore();
+@inject('store')
+@observer
+class ButtonGorup extends Component {
+  render() {
+    return (
+      <div>
+        <button onClick={() => {
+          this.props.store.CountStore.add()
+        }}>add
+        </button>
+        <button
+          onClick={()=>{this.props.store.CountStore.minus()}}>minu
+        </button>
+        <button
+          onClick={()=>{this.props.store.CountStore.addAfterTenSeconds()}}>addAfterTenSeconds
+        </button>
+      </div>
+    )
   }
 }
 
 @inject('store')
 @observer
 class Home extends Component {
-  constructor(props) {
-    super(props)
-    this.countStore = this.props.store.countStore
-  }
-
   render() {
-    let count = this.countStore.cc.count
-    let aaa = this.countStore.cc.aaa
+    let count = this.props.store.CountStore.count
+    let status = this.props.store.CountStore.status
+    let addTwo = this.props.store.CountStore.addTwo
     return (
       <div>
-        <p>{count}</p>
-        <p>{aaa}</p>
+        <div>{status}</div>
+        <div>{count}</div>
+        <div>computed add two value : {addTwo}</div>
       </div>
     )
-  }
-}
-
-@inject('store')
-@observer
-class Button extends Component {
-  constructor(props) {
-    super(props)
-    console.log(props)
-  }
-
-  render() {
-    return (
-      <div>
-        <button onClick={() => this.increment()}
-          style={{marginRight: '15px'}}>click to add
-        </button>
-        <button onClick={() => {
-          this.aaa()
-        }}> click to reduce
-        </button>
-      </div>
-    )
-  }
-
-  increment() {
-    this.props.store.countStore.add()
-    console.log()
-  }
-
-  aaa() {
-    this.props.store.countStore.aa()
   }
 }
 
 class App extends Component {
   render() {
     return (
-      <Provider store={new store()}>
+      <Provider store={store}>
         <div>
-          <Button></Button>
           <Home/>
+          <ButtonGorup></ButtonGorup>
         </div>
       </Provider>
     );
@@ -98,5 +56,3 @@ class App extends Component {
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'))
-
-serviceWorker.unregister()
